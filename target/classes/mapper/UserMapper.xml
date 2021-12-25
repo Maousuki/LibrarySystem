@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="library.demo.dao.UserMapper">
+    <insert id="addUser" parameterType="User">
+        insert into library.user (Id, Username, Password, Email, Nickname, Role)
+        VALUES (#{Id}, #{Username}, #{Password}, #{Email}, #{Nickname}, #{Role})
+    </insert>
+
+    <update id="updatePassword">
+        update library.user set Password = #{newPassword} where Id = #{id}
+    </update>
+
+    <select id="loginUser" resultType="User">
+        select * from library.user where Id = #{id} and Password = #{password}
+    </select>
+
+    <update id="updateInfo">
+        update library.user set Email = #{email}, Nickname = #{nickname} where Id = #{id}
+    </update>
+
+    <select id="queryUserById" resultType="User">
+        select * from library.user where Id = #{id}
+    </select>
+
+    <select id="queryAllUsers" resultType="User">
+        select * from library.user
+    </select>
+
+    <select id="queryUserByEmail" resultType="User">
+        select * from library.user where Email = #{email}
+    </select>
+
+    <select id="queryUserByName" resultType="User">
+        select * from library.user where Username = #{name}
+    </select>
+</mapper>

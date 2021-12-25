@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="library.demo.dao.ShiroMapper">
+    <select id="findByToken" resultType="SysToken">
+        select * from library.token where token = #{token}
+    </select>
+
+    <select id="findByUserId" resultType="SysToken">
+        select * from library.token where userId = #{userId}
+    </select>
+
+    <insert id="save" parameterType="SysToken">
+        insert into library.token (userId, token, expireTime, updateTime)
+        VALUES (#{userId}, #{token}, #{expireTime}, #{updateTime})
+    </insert>
+
+    <delete id="delete">
+        delete from library.token where userId = #{userId}
+    </delete>
+
+    <update id="update">
+        update library.token set token = #{token}, expireTime = #{expire}, updateTime = #{update} where userId = #{userId}
+    </update>
+</mapper>

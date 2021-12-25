@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="library.demo.dao.BookMapper">
+    <insert id="addBook" parameterType="Book">
+        insert into library.book (Id, Name, Place, Introduction, Author, Price)
+        VALUES (#{Id}, #{Name}, #{Place}, #{Introduction}, #{Author}, #{Price})
+    </insert>
+
+    <delete id="deleteBook">
+        delete from library.book where Id = #{id}
+    </delete>
+
+    <select id="queryBookById" resultType="Book">
+        select * from library.book where Id = #{id}
+    </select>
+    
+    <update id="updateBook" parameterType="Book">
+        update library.book set Name = #{Name}, Place = #{Place}, Introduction = #{Introduction},
+        Author = #{Author}, Price = #{Price} where Id = #{Id}
+    </update>
+
+    <select id="queryAllBooks" resultType="Book">
+        select * from library.book
+    </select>
+
+    <insert id="borrowBook">
+        insert into library.record (Id, BookId, UserId, BorrowDate, ReturnDate)
+        VALUES (#{Id}, #{BookId}, #{UserId}, #{BorrowDate}, #{ReturnDate})
+    </insert>
+
+    <update id="updateStatus">
+        update library.book set Status = #{status} where Id = #{id}
+    </update>
+
+    <select id="queryRecordById" resultType="Record">
+        select * from library.record where Id = #{rid}
+    </select>
+
+    <update id="updateReturnDate">
+        update library.record set ReturnDate = #{date} where Id = #{id}
+    </update>
+
+    <select id="queryBookAllRecords" resultType="Record">
+        select * from library.record where BookId = #{id}
+    </select>
+
+    <select id="queryUserRecords" resultType="Record">
+        select * from library.record where UserId = #{uid}
+    </select>
+
+    <select id="queryAllRecords" resultType="Record">
+        select * from library.record
+    </select>
+</mapper>

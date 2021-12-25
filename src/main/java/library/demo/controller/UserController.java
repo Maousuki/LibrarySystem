@@ -2,7 +2,6 @@ package library.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import library.demo.pojo.Book;
 import library.demo.pojo.User;
 import library.demo.serviceImpl.ShiroServiceImpl;
 import library.demo.serviceImpl.UserServiceImpl;

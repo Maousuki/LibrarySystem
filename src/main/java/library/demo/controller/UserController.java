@@ -79,8 +79,7 @@ public class UserController {
             jsonRes.put("msg","密码错误");
             data.put("user_id","null");
         } else {
-            Map<String, Object> result = shiroService.createToken(user.getId());
-            String token = (String) result.get("token");
+            String token = shiroService.createToken(user.getId());
             jsonRes.put("code","0");
             jsonRes.put("msg","登录成功");
             jsonRes.put("access_token",token);

@@ -42,10 +42,6 @@
         update library.record set ReturnDate = #{date} where Id = #{id}
     </update>
 
-<!--    <select id="queryRecordByBookId" resultType="Record">-->
-<!--        select * from library.record where-->
-<!--    </select>-->
-
     <select id="queryBookAllRecords" resultType="Record">
         select * from library.record where BookId = #{id}
     </select>

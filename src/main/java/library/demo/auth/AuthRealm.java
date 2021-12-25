@@ -1,6 +1,5 @@
 package library.demo.auth;
 
-import library.demo.pojo.SysToken;
 import library.demo.pojo.User;
 import library.demo.serviceImpl.ShiroServiceImpl;
 import library.demo.serviceImpl.UserServiceImpl;
@@ -10,9 +9,11 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Component
 public class AuthRealm extends AuthorizingRealm {
@@ -21,6 +22,9 @@ public class AuthRealm extends AuthorizingRealm {
     ShiroServiceImpl shiroService;
     @Autowired
     UserServiceImpl userService;
+    @Autowired
+    @Qualifier("redisTemplate")
+    RedisTemplate redisTemplate;
 
     //授权
     @Override
@@ -39,16 +43,18 @@ public class AuthRealm extends AuthorizingRealm {
         //获取token，既前端传入的token
         String accessToken = (String) token.getPrincipal();
         //1. 根据accessToken，查询用户信息
-        SysToken tokenEntity = shiroService.findByToken(accessToken);
-        //2. token失效
-        if (tokenEntity == null || tokenEntity.getExpireTime().isBefore(LocalDateTime.now())) {
+        String userId;
+        User user;
+        try {
+            userId = (String) redisTemplate.opsForValue().get(accessToken);
+            //3. 调用数据库的方法, 从数据库中查询 username 对应的用户记录
+            user = userService.queryUserById(Long.valueOf(userId));
+            //4. 若用户不存在, 则可以抛出 UnknownAccountException 异常
+            if (user == null) {
+                throw new UnknownAccountException("用户不存在!");
+            }
+        } catch (Exception e) {
             throw new IncorrectCredentialsException("token失效，请重新登录");
-        }
-        //3. 调用数据库的方法, 从数据库中查询 username 对应的用户记录
-        User user = userService.queryUserById(tokenEntity.getUserId());
-        //4. 若用户不存在, 则可以抛出 UnknownAccountException 异常
-        if (user == null) {
-            throw new UnknownAccountException("用户不存在!");
         }
         //5. 根据用户的情况, 来构建 AuthenticationInfo 对象并返回. 通常使用的实现类为: SimpleAuthenticationInfo
         SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, accessToken, this.getName());

@@ -1,18 +1,15 @@
 package library.demo.serviceImpl;
 
 import library.demo.auth.TokenGenerator;
-import library.demo.dao.ShiroMapper;
 import library.demo.dao.UserMapper;
-import library.demo.pojo.SysToken;
 import library.demo.service.ShiroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ShiroServiceImpl implements ShiroService {
@@ -23,49 +20,31 @@ public class ShiroServiceImpl implements ShiroService {
     @Autowired
     UserMapper userMapper;
     @Autowired
-    ShiroMapper shiroMapper;
-
-    @Autowired
+    @Qualifier("redisTemplate")
     RedisTemplate redisTemplate;
 
     @Override
-    public Map<String, Object> createToken(long userId) {
-        Map<String, Object> result = new HashMap<>();
+    public String createToken(long userId) {
         //生成一个token
         String token = TokenGenerator.generateValue();
-        //当前时间
-        LocalDateTime now = LocalDateTime.now();
-        //过期时间
-        LocalDateTime expireTime = now.plusHours(EXPIRE);
         //判断是否生成过token
-        SysToken tokenEntity = shiroMapper.findByUserId(userId);
-        if (tokenEntity == null) {
-            tokenEntity = new SysToken();
-            tokenEntity.setUserId(userId);
-            tokenEntity.setToken(token);
-            tokenEntity.setUpdateTime(now);
-            tokenEntity.setExpireTime(expireTime);
-            shiroMapper.save(tokenEntity);
+        String getToken = (String) redisTemplate.opsForValue().get(String.valueOf(userId));
+        if (Objects.isNull(getToken)){
+            redisTemplate.opsForValue().set(String.valueOf(userId),token,EXPIRE,TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(token,String.valueOf(userId),EXPIRE,TimeUnit.HOURS);
+            return token;
         } else {
-            shiroMapper.update(userId,token,expireTime,now);
+            redisTemplate.expire(String.valueOf(userId),EXPIRE,TimeUnit.HOURS);
+            redisTemplate.expire(getToken,EXPIRE,TimeUnit.HOURS);
+            return getToken;
         }
 
-        result.put("token", token);
-        result.put("expire", expireTime);
-        return result;
     }
 
     @Override
     public void logout(String token) {
-        SysToken byToken = findByToken(token);
-        long userId = byToken.getUserId();
-        //删除token
-        shiroMapper.delete(userId);
+        Object getUserId = redisTemplate.opsForValue().get(token);
+        redisTemplate.delete(getUserId);
+        redisTemplate.delete(token);
     }
-
-    @Override
-    public SysToken findByToken(String accessToken) {
-        return shiroMapper.findByToken(accessToken);
-    }
-
 }

@@ -284,12 +284,25 @@ public class BookController {
             data.put("return_date","null");
         } else {
             List<Record> records = bookService.queryBookAllRecords(Long.parseLong(book_id));
+            if (records.size() == 0){
+                jsonRes.put("code",0);
+                jsonRes.put("msg","ok");
+                data.put("user_id","null");
+                data.put("borrow_date","null");
+                data.put("return_date","null");
+                jsonRes.put("data",data);
+                return jsonRes;
+            }
             Record record = records.get(records.size() - 1);
             jsonRes.put("code",0);
             jsonRes.put("msg","ok");
             data.put("user_id",record.getUserId());
             data.put("borrow_date",dft.format(record.getBorrowDate()));
-            data.put("return_date",dft.format(record.getReturnDate()));
+            if (record.getReturnDate() == null){
+                data.put("return_date","null");
+            } else {
+                data.put("return_date",dft.format(record.getReturnDate()));
+            }
         }
         jsonRes.put("data",data);
         return jsonRes;
@@ -319,7 +332,11 @@ public class BookController {
                 map.put("user_id",record.getUserId());
                 map.put("username",userService.queryUserById(record.getUserId()).getUsername());
                 map.put("borrow_date",dft.format(record.getBorrowDate()));
-                map.put("return_date",dft.format(record.getReturnDate()));
+                if (record.getReturnDate() == null){
+                    map.put("return_date","null");
+                } else {
+                    map.put("return_date",dft.format(record.getReturnDate()));
+                }
                 list.add(map);
                 map = new HashMap<>();
             }
@@ -355,7 +372,11 @@ public class BookController {
                 map.put("book_id",record.getBookId());
                 map.put("name",bookService.queryBookById(record.getBookId()).getName());
                 map.put("borrow_date",dft.format(record.getBorrowDate()));
-                map.put("return_date",dft.format(record.getReturnDate()));
+                if (record.getReturnDate() == null){
+                    map.put("return_date","null");
+                } else {
+                    map.put("return_date",dft.format(record.getReturnDate()));
+                }
                 list.add(map);
                 map = new HashMap<>();
             }
@@ -392,7 +413,11 @@ public class BookController {
             data.put("book_id",record.getBookId());
             data.put("user_id",record.getUserId());
             data.put("borrow_date",dft.format(record.getBorrowDate()));
-            data.put("return_date",dft.format(record.getReturnDate()));
+            if (record.getReturnDate() == null){
+                data.put("return_date","null");
+            } else {
+                data.put("return_date",dft.format(record.getReturnDate()));
+            }
         }
         jsonRes.put("data",data);
 
@@ -416,7 +441,11 @@ public class BookController {
             map.put("book_id",record.getBookId());
             map.put("usr_id",record.getUserId());
             map.put("borrow_date",dft.format(record.getBorrowDate()));
-            map.put("return_date",dft.format(record.getReturnDate()));
+            if (record.getReturnDate() == null){
+                map.put("return_date","null");
+            } else {
+                map.put("return_date",dft.format(record.getReturnDate()));
+            }
             list.add(map);
             map = new HashMap<>();
         }
